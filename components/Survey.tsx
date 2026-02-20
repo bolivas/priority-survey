@@ -260,7 +260,7 @@ export default function Survey() {
     return (
       <div className="container">
         <div className="header">
-          <h1>AI Employee Priority Survey</h1>
+          <h1>If AI Worked For You...</h1>
           <p>These are common problems in our industry. Pick the {MAX_SELECTIONS} that you want an AI employee to help you with the most.</p>
         </div>
         <div className="card">
@@ -317,7 +317,7 @@ export default function Survey() {
     return (
       <div className="container">
         <div className="header">
-          <h1>AI Employee Priority Survey</h1>
+          <h1>If AI Worked For You...</h1>
           <p>Almost done — just a few details</p>
         </div>
         <div className="card">
@@ -397,7 +397,7 @@ export default function Survey() {
   return (
     <div className="container">
       <div className="header">
-        <h1>AI Employee Priority Survey</h1>
+        <h1>If AI Worked For You...</h1>
         <p>Step 2 of 3</p>
       </div>
 
