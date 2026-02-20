@@ -78,6 +78,31 @@ In the Supabase Table Editor, click the **Export** button to download results as
 
 ---
 
+## Site Map
+
+### Pages
+
+| Path | Description |
+|------|-------------|
+| `/` | Main survey — select top 5 problems, rank them, enter contact info, submit |
+| `/results` | Public results dashboard |
+| `/admin` | Password-protected admin panel (reset data, seed responses, view partials) |
+
+### API Routes
+
+| Path | Method | Description |
+|------|--------|-------------|
+| `/api/submit` | POST | Submit a completed survey response |
+| `/api/partial` | POST | Save/upsert a partial (in-progress) survey response |
+| `/api/partial` | DELETE | Delete a partial response (cleanup after submission) |
+| `/api/results` | GET | Fetch survey results for the dashboard |
+| `/api/admin/login` | POST | Authenticate admin credentials |
+| `/api/admin/reset` | POST | Delete all survey responses and partials |
+| `/api/admin/seed` | POST | Generate fake survey responses for testing |
+| `/api/admin/partials` | POST | List all partial responses (admin only) |
+
+---
+
 ## How It Works
 
 - **Drag & Drop**: Uses [@dnd-kit](https://dndkit.com/) which supports mouse, touch, and keyboard — works on all modern browsers including mobile
