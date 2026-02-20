@@ -30,6 +30,7 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("summary");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"score" | "avgRank">("score");
 
   const handleLogin = async () => {
     setError("");
@@ -105,17 +106,31 @@ export default function ResultsPage() {
     });
   });
 
-  const sortedItems = Object.entries(itemStats)
+  const allItems = Object.entries(itemStats)
     .map(([id, s]) => ({
       id,
       label: s.label,
       count: s.count,
       avgRank: s.totalRank / s.count,
       score: s.score,
-    }))
-    .sort((a, b) => b.score - a.score || b.count - a.count);
+    }));
 
-  const maxScore = sortedItems.length > 0 ? sortedItems[0].score : 1;
+  const sortedItems = [...allItems].sort(
+    sortBy === "score"
+      ? (a, b) => b.score - a.score || b.count - a.count
+      : (a, b) => a.avgRank - b.avgRank || b.count - a.count
+  );
+
+  const maxScore = allItems.length > 0 ? Math.max(...allItems.map((i) => i.score)) : 1;
+  const maxCount = allItems.length > 0 ? Math.max(...allItems.map((i) => i.count)) : 1;
+
+  // Heat color: interpolate from blue (cold, low count) to red (hot, high count)
+  const heatColor = (count: number) => {
+    const t = maxCount > 1 ? (count - 1) / (maxCount - 1) : 0;
+    // blue (210°) → orange (25°) → red (0°)
+    const hue = 210 - t * 210;
+    return `hsl(${hue}, 80%, 50%)`;
+  };
 
   return (
     <div className="r-container">
@@ -158,15 +173,51 @@ export default function ResultsPage() {
           <div className="r-card">
             <h2>Priority Rankings</h2>
             <p className="r-subtitle">
-              Sorted by priority score (rank 1 = 5 pts, rank 2 = 4 pts, ... rank 5 = 1 pt).
-              Items people want the most are at the top.
+              {sortBy === "score"
+                ? "Sorted by priority score (rank 1 = 5 pts, rank 2 = 4 pts, ... rank 5 = 1 pt). Most wanted at the top."
+                : "Sorted by average rank (lowest = most wanted by those who selected it). Most wanted at the top."}
             </p>
+
+            <div className="r-sort-toggle">
+              <span className="r-sort-label">Sort by:</span>
+              <button
+                className={`r-sort-btn ${sortBy === "score" ? "active" : ""}`}
+                onClick={() => setSortBy("score")}
+              >
+                Priority Score
+              </button>
+              <button
+                className={`r-sort-btn ${sortBy === "avgRank" ? "active" : ""}`}
+                onClick={() => setSortBy("avgRank")}
+              >
+                Avg Rank
+              </button>
+            </div>
+
+            <div className="r-heat-legend">
+              <span className="r-heat-legend-label">Selection frequency:</span>
+              <div className="r-heat-gradient" />
+              <div className="r-heat-labels">
+                <span>Low</span>
+                <span>High</span>
+              </div>
+            </div>
+
             <div className="r-rankings">
               {sortedItems.map((item, i) => (
                 <div key={item.id} className="r-rank-row">
                   <div className="r-rank-pos">{i + 1}</div>
                   <div className="r-rank-info">
-                    <div className="r-rank-label">{item.label}</div>
+                    <div className="r-rank-label-row">
+                      <span className="r-rank-label">{item.label}</span>
+                      <span
+                        className="r-heat-badge"
+                        style={{ background: heatColor(item.count) }}
+                        title={`Selected ${item.count} time${item.count !== 1 ? "s" : ""}`}
+                      >
+                        {item.count}
+                      </span>
+                    </div>
                     <div className="r-rank-bar-wrap">
                       <div
                         className="r-rank-bar"

@@ -261,7 +261,7 @@ export default function Survey() {
       <div className="container">
         <div className="header">
           <h1>AI Employee Priority Survey</h1>
-          <p>Below are real problems that agents and team members face every day. Pick the {MAX_SELECTIONS} you would most want an AI employee to fix, improve, or handle better than how it gets done today.</p>
+          <p>These are common problems in our industry. Pick the {MAX_SELECTIONS} that you want an AI employee to help you with the most.</p>
         </div>
         <div className="card">
           <div className="instructions">

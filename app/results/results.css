@@ -208,11 +208,95 @@
   min-width: 0;
 }
 
+/* Sort toggle */
+.r-sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.r-sort-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.r-sort-btn {
+  padding: 6px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.r-sort-btn:hover {
+  border-color: #2563eb;
+  background: #f0f5ff;
+}
+
+.r-sort-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+  font-weight: 600;
+}
+
+/* Heat legend */
+.r-heat-legend {
+  margin-bottom: 18px;
+}
+
+.r-heat-legend-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.r-heat-gradient {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, hsl(210, 80%, 50%), hsl(105, 80%, 50%), hsl(40, 80%, 50%), hsl(0, 80%, 50%));
+}
+
+.r-heat-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #111827;
+  margin-top: 3px;
+}
+
+/* Heat badge */
+.r-heat-badge {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: center;
+}
+
+.r-rank-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
 .r-rank-label {
   font-size: 0.9rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 6px;
 }
 
 .r-rank-bar-wrap {
