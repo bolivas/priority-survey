@@ -23,7 +23,7 @@
 }
 
 .r-login-card p {
-  color: #6b7280;
+  color: #111827;
   margin-bottom: 24px;
   font-size: 0.9rem;
 }
@@ -114,7 +114,7 @@
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #6b7280;
+  color: #111827;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -144,7 +144,7 @@
 
 .r-subtitle {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #111827;
   margin-top: -10px;
   margin-bottom: 20px;
 }
@@ -171,7 +171,7 @@
 
 .r-team-label {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #111827;
   margin-top: 4px;
 }
 
@@ -230,9 +230,21 @@
   transition: width 0.3s ease;
 }
 
-.r-rank-meta {
-  font-size: 0.78rem;
-  color: #9ca3af;
+.r-rank-stats {
+  font-size: 0.8rem;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.r-stat-value {
+  font-weight: 700;
+}
+
+.r-stat-sep {
+  color: #d1d5db;
 }
 
 /* Responses list */
@@ -266,7 +278,7 @@
 }
 
 .r-response-email {
-  color: #9ca3af;
+  color: #111827;
   margin-left: 12px;
   font-weight: 400;
   font-size: 0.85rem;
@@ -284,13 +296,13 @@
   background: #f3f4f6;
   padding: 3px 10px;
   border-radius: 9999px;
-  color: #6b7280;
+  color: #111827;
   white-space: nowrap;
 }
 
 .r-chevron {
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: #111827;
 }
 
 .r-response-body {
@@ -301,14 +313,14 @@
 
 .r-response-date {
   font-size: 0.78rem;
-  color: #9ca3af;
+  color: #111827;
   margin-bottom: 14px;
 }
 
 .r-response-body h4 {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #374151;
+  color: #111827;
   margin-bottom: 8px;
   margin-top: 16px;
 }
@@ -320,7 +332,7 @@
 .r-response-list {
   padding-left: 24px;
   font-size: 0.88rem;
-  color: #4b5563;
+  color: #111827;
 }
 
 .r-response-list li {
@@ -328,11 +340,11 @@
 }
 
 .r-response-list.remaining {
-  color: #9ca3af;
+  color: #111827;
 }
 
 .r-empty {
-  color: #9ca3af;
+  color: #111827;
   font-size: 0.9rem;
   text-align: center;
   padding: 32px 0;

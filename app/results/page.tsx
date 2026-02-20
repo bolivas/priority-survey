@@ -91,15 +91,17 @@ export default function ResultsPage() {
     "20+": "20+ people",
   };
 
-  // Aggregate top-5 rankings
-  const itemStats: Record<string, { count: number; totalRank: number; label: string }> = {};
+  // Aggregate top-5 rankings with priority score
+  // Points: rank 1 = 5 pts, rank 2 = 4 pts, ..., rank 5 = 1 pt
+  const itemStats: Record<string, { count: number; totalRank: number; score: number; label: string }> = {};
   results.forEach((r) => {
     r.rankings.forEach((ranking) => {
       if (!itemStats[ranking.id]) {
-        itemStats[ranking.id] = { count: 0, totalRank: 0, label: ranking.label };
+        itemStats[ranking.id] = { count: 0, totalRank: 0, score: 0, label: ranking.label };
       }
       itemStats[ranking.id].count += 1;
       itemStats[ranking.id].totalRank += ranking.rank;
+      itemStats[ranking.id].score += (6 - ranking.rank);
     });
   });
 
@@ -109,10 +111,11 @@ export default function ResultsPage() {
       label: s.label,
       count: s.count,
       avgRank: s.totalRank / s.count,
+      score: s.score,
     }))
-    .sort((a, b) => b.count - a.count || a.avgRank - b.avgRank);
+    .sort((a, b) => b.score - a.score || b.count - a.count);
 
-  const maxCount = sortedItems.length > 0 ? sortedItems[0].count : 1;
+  const maxScore = sortedItems.length > 0 ? sortedItems[0].score : 1;
 
   return (
     <div className="r-container">
@@ -154,7 +157,10 @@ export default function ResultsPage() {
           {/* Priority rankings */}
           <div className="r-card">
             <h2>Priority Rankings</h2>
-            <p className="r-subtitle">Items ranked by how often they appear in top 5, with average rank shown.</p>
+            <p className="r-subtitle">
+              Sorted by priority score (rank 1 = 5 pts, rank 2 = 4 pts, ... rank 5 = 1 pt).
+              Items people want the most are at the top.
+            </p>
             <div className="r-rankings">
               {sortedItems.map((item, i) => (
                 <div key={item.id} className="r-rank-row">
@@ -164,11 +170,21 @@ export default function ResultsPage() {
                     <div className="r-rank-bar-wrap">
                       <div
                         className="r-rank-bar"
-                        style={{ width: `${(item.count / maxCount) * 100}%` }}
+                        style={{ width: `${(item.score / maxScore) * 100}%` }}
                       />
                     </div>
-                    <div className="r-rank-meta">
-                      Selected {item.count} time{item.count !== 1 ? "s" : ""} &middot; Avg rank: {item.avgRank.toFixed(1)}
+                    <div className="r-rank-stats">
+                      <span className="r-stat">
+                        <span className="r-stat-value">{item.score}</span> pts
+                      </span>
+                      <span className="r-stat-sep">&middot;</span>
+                      <span className="r-stat">
+                        Selected <span className="r-stat-value">{item.count}</span> time{item.count !== 1 ? "s" : ""}
+                      </span>
+                      <span className="r-stat-sep">&middot;</span>
+                      <span className="r-stat">
+                        Avg rank <span className="r-stat-value">{item.avgRank.toFixed(1)}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
