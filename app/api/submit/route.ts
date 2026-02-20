@@ -4,9 +4,9 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, team_size, rankings } = body;
+    const { first_name, last_name, email, team_size, rankings, remaining_rankings } = body;
 
-    if (!name || !email || !team_size || !rankings) {
+    if (!first_name || !last_name || !email || !team_size || !rankings) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
 
     // Insert the response
     const { error } = await supabase.from("survey_responses").insert({
-      name,
+      first_name,
+      last_name,
       email: email.toLowerCase(),
       team_size,
       rankings,
+      remaining_rankings: remaining_rankings || [],
       submitted_at: new Date().toISOString(),
     });
 

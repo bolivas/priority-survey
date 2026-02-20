@@ -6,11 +6,12 @@ import { CSS } from "@dnd-kit/utilities";
 interface SortableItemProps {
   id: string;
   label: string;
+  description?: string;
   rank: number;
   moved: boolean;
 }
 
-export default function SortableItem({ id, label, rank, moved }: SortableItemProps) {
+export default function SortableItem({ id, label, description, rank, moved }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -34,7 +35,10 @@ export default function SortableItem({ id, label, rank, moved }: SortableItemPro
       {...listeners}
     >
       <span className="item-rank">{rank}</span>
-      <span className="item-label">{label}</span>
+      <span className="item-label">
+        {label}
+        {description && <span className="item-desc">{description}</span>}
+      </span>
       <span className="item-status">{moved ? "✓ Set" : "Arrange me"}</span>
       <span className="item-handle">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -5,10 +5,12 @@
 -- Create the survey responses table
 CREATE TABLE survey_responses (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
   team_size TEXT NOT NULL,
   rankings JSONB NOT NULL,
+  remaining_rankings JSONB DEFAULT '[]'::jsonb,
   submitted_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -35,7 +37,8 @@ CREATE POLICY "Service role can select"
 -- ============================================================
 CREATE OR REPLACE VIEW survey_results AS
 SELECT
-  name,
+  first_name,
+  last_name,
   email,
   team_size,
   submitted_at,

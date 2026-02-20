@@ -226,6 +226,15 @@ body {
   color: var(--gray-800);
 }
 
+.item-desc {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
 .item-handle {
   color: var(--gray-400);
   flex-shrink: 0;
@@ -249,6 +258,13 @@ body {
 .moved .item-status {
   background: #86efac;
   color: #14532d;
+}
+
+/* Remaining card (optional section) */
+.remaining-card {
+  opacity: 0.85;
+  border: 1px dashed var(--gray-300);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Submit */
@@ -281,6 +297,19 @@ body {
   background: var(--gray-300);
   cursor: not-allowed;
   transform: none;
+}
+
+.submit-btn.pulse {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(37, 99, 235, 0);
+  }
 }
 
 .progress-note {
@@ -451,6 +480,19 @@ body {
 
 .select-label {
   flex: 1;
+}
+
+.select-desc {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.select-item.selected .select-desc {
+  color: #4b6cb7;
 }
 
 /* Responsive */
