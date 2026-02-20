@@ -214,6 +214,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .r-sort-label {
@@ -297,6 +298,13 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #1f2937;
+}
+
+.r-rank-description {
+  font-size: 0.78rem;
+  color: #6b7280;
+  line-height: 1.45;
+  margin: 0 0 6px 0;
 }
 
 .r-rank-bar-wrap {

@@ -22,6 +22,30 @@ interface Response {
 
 type Tab = "summary" | "responses";
 
+const ITEM_DESCRIPTIONS: Record<string, string> = {
+  "lead-gen": "Agents waste time chasing unqualified leads from vendors that prioritize volume over quality, and the AI tools that do exist are built for American markets only, leaving international agents with nothing usable.",
+  "prospect-outreach": "Getting a prospect on the phone is a grind of unanswered calls, siloed communication channels, no intelligent call routing, and outreach that doesn\u2019t adapt to regional culture or tone.",
+  "follow-up-nurture": "After first contact, most agents give up within 3\u20134 attempts because there\u2019s no automated system to persistently follow up across channels, book appointments, or trigger workflows based on prospect behavior.",
+  "client-onboarding": "Pre-sale fact-finding, quoting, information gathering, and post-sale intake paperwork, form collection, and compliance-gated scheduling like Medicare\u2019s 48-hour Scope of Appointment rule bury salespeople in admin instead of letting them sell.",
+  "book-retention": "Agents neglect existing clients because there\u2019s no automated system for annual reviews, pre-renewal outreach, quarterly touchpoints, or referral asks \u2014 and when automation does exist, it feels robotic at scale.",
+  "claims-engagement": "Most agents go silent during claims and miss the single best relationship-building moment in insurance \u2014 no consistent touchpoints during or after claims, and no structured follow-up to convert loyalty into referrals.",
+  "agent-recruiting": "The number one complaint in 23 years of the industry: agencies can\u2019t find good people, have no scalable recruiting funnel, and bias toward experienced hires while overlooking coachable talent.",
+  "licensing-exam": "Promising recruits wash out because they can\u2019t pass the licensing exam, and no AI-powered study tool exists to adapt to individual gaps and drill candidates to a passing score.",
+  "agent-onboarding": "Getting a new agent contracted and credentialed with carriers is a full-time job that smaller agencies can\u2019t staff for, creating a bottleneck between hiring and producing.",
+  "agent-ramp-up": "After licensing, new agents are dropped into the field with no structured daily plan, no weekly milestones, and no 90-day roadmap \u2014 so they flounder, lose confidence, and quit.",
+  "sales-training": "The training that actually makes agents successful \u2014 role plays, ride-alongs, presentation coaching \u2014 doesn\u2019t scale beyond one-on-one, and agency owners\u2019 plans break down when less-trained team members try to execute them.",
+  "accountability": "Managers have no visibility into whether agents are making calls, booking appointments, or hitting daily behaviors, so they can\u2019t coach effectively or intervene early.",
+  "agent-retention": "Agents get poached by competitors because retention depends on culture, leadership, and feeling successful \u2014 all of which erode as agencies grow, go remote, or spread across regions.",
+  "underwriting": "Underwriters are slow to respond, newer agents don\u2019t know how to push back on bad decisions, underwriters themselves sometimes don\u2019t know their own terms, and proprietary guidelines can\u2019t be loaded into AI tools without liability risk.",
+  "compliance": "Agents fail to document conversations, miss required disclosures, don\u2019t capture recording consent, and face serious legal exposure from Section A allegations \u2014 all while navigating rules that vary by state, country, and carrier with no automated tracking.",
+  "doc-generation": "Creating client-facing documents, transcribing meetings, and generating compliant reports eats 14+ hours per week, and what does get produced is inconsistent in branding, tone, and structure across the agency.",
+  "marketing": "Agents are invisible in their markets with no differentiation, no content pipeline, no video strategy, and deep skepticism toward automation tools that overpromise \u2014 while the ones that do automate risk sounding generic and losing authenticity.",
+  "self-service": "Prospects and clients can\u2019t get insurance answers outside business hours, don\u2019t understand products well enough to buy, and agents are paying third parties for basic chatbot features that an in-house AI should own.",
+  "knowledge-base": "There\u2019s no shared, multi-user knowledge base for agency teams, so managers and senior agents burn hours answering the same internal questions over and over instead of focusing on growth.",
+  "data-bi": "Most agents and owners don\u2019t track close ratios, dial-to-appointment rates, marketing ROI, or margins \u2014 they\u2019re flying blind and staying average because no simple dashboard ties activity to outcomes.",
+  "biz-ops-finance": "Receipt tracking, commissions reconciliation, and bank account management are manual and error-prone, requiring dedicated headcount that smaller agencies can\u2019t afford and larger ones are still struggling to staff.",
+};
+
 export default function ResultsPage() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -30,7 +54,7 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<Tab>("summary");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"score" | "avgRank">("score");
+  const [teamFilter, setTeamFilter] = useState<"all" | "1-2" | "3-20" | "20+">("all");
 
   const handleLogin = async () => {
     setError("");
@@ -92,10 +116,16 @@ export default function ResultsPage() {
     "20+": "20+ people",
   };
 
+  // Filter results by team size
+  const filteredResults = teamFilter === "all"
+    ? results
+    : results.filter((r) => r.team_size === teamFilter);
+  const filteredCount = filteredResults.length;
+
   // Aggregate top-5 rankings with priority score
   // Points: rank 1 = 5 pts, rank 2 = 4 pts, ..., rank 5 = 1 pt
   const itemStats: Record<string, { count: number; totalRank: number; score: number; label: string }> = {};
-  results.forEach((r) => {
+  filteredResults.forEach((r) => {
     r.rankings.forEach((ranking) => {
       if (!itemStats[ranking.id]) {
         itemStats[ranking.id] = { count: 0, totalRank: 0, score: 0, label: ranking.label };
@@ -116,9 +146,7 @@ export default function ResultsPage() {
     }));
 
   const sortedItems = [...allItems].sort(
-    sortBy === "score"
-      ? (a, b) => b.score - a.score || b.count - a.count
-      : (a, b) => a.avgRank - b.avgRank || b.count - a.count
+    (a, b) => b.score - a.score || b.count - a.count
   );
 
   const maxScore = allItems.length > 0 ? Math.max(...allItems.map((i) => i.score)) : 1;
@@ -173,24 +201,35 @@ export default function ResultsPage() {
           <div className="r-card">
             <h2>Priority Rankings</h2>
             <p className="r-subtitle">
-              {sortBy === "score"
-                ? "Sorted by priority score (rank 1 = 5 pts, rank 2 = 4 pts, ... rank 5 = 1 pt). Most wanted at the top."
-                : "Sorted by average rank (lowest = most wanted by those who selected it). Most wanted at the top."}
+              Sorted by priority score (rank 1 = 5 pts, rank 2 = 4 pts, ... rank 5 = 1 pt). Most wanted at the top.
+              {teamFilter !== "all" && ` Showing ${filteredCount} of ${totalResponses} responses.`}
             </p>
 
             <div className="r-sort-toggle">
-              <span className="r-sort-label">Sort by:</span>
+              <span className="r-sort-label">Team size:</span>
               <button
-                className={`r-sort-btn ${sortBy === "score" ? "active" : ""}`}
-                onClick={() => setSortBy("score")}
+                className={`r-sort-btn ${teamFilter === "all" ? "active" : ""}`}
+                onClick={() => setTeamFilter("all")}
               >
-                Priority Score
+                All
               </button>
               <button
-                className={`r-sort-btn ${sortBy === "avgRank" ? "active" : ""}`}
-                onClick={() => setSortBy("avgRank")}
+                className={`r-sort-btn ${teamFilter === "1-2" ? "active" : ""}`}
+                onClick={() => setTeamFilter("1-2")}
               >
-                Avg Rank
+                1–2 people
+              </button>
+              <button
+                className={`r-sort-btn ${teamFilter === "3-20" ? "active" : ""}`}
+                onClick={() => setTeamFilter("3-20")}
+              >
+                3–20 people
+              </button>
+              <button
+                className={`r-sort-btn ${teamFilter === "20+" ? "active" : ""}`}
+                onClick={() => setTeamFilter("20+")}
+              >
+                20+ people
               </button>
             </div>
 
@@ -218,6 +257,9 @@ export default function ResultsPage() {
                         {item.count}
                       </span>
                     </div>
+                    {ITEM_DESCRIPTIONS[item.id] && (
+                      <p className="r-rank-description">{ITEM_DESCRIPTIONS[item.id]}</p>
+                    )}
                     <div className="r-rank-bar-wrap">
                       <div
                         className="r-rank-bar"
