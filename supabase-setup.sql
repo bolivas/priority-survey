@@ -1,0 +1,73 @@
+-- ============================================================
+-- Run this in your Supabase SQL Editor (Dashboard → SQL Editor)
+-- ============================================================
+
+-- Create the survey responses table
+CREATE TABLE survey_responses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  team_size TEXT NOT NULL,
+  rankings JSONB NOT NULL,
+  submitted_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Index on email for fast duplicate lookups
+CREATE INDEX idx_survey_responses_email ON survey_responses (email);
+
+-- Enable Row Level Security
+ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
+
+-- Policy: only the service role can insert (API route uses service key)
+CREATE POLICY "Service role can insert"
+  ON survey_responses
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Policy: only the service role can select (for duplicate checking)
+CREATE POLICY "Service role can select"
+  ON survey_responses
+  FOR SELECT
+  USING (true);
+
+-- ============================================================
+-- Optional: View to see results nicely
+-- ============================================================
+CREATE OR REPLACE VIEW survey_results AS
+SELECT
+  name,
+  email,
+  team_size,
+  submitted_at,
+  r.value->>'label' AS item,
+  (r.value->>'rank')::int AS rank
+FROM survey_responses,
+LATERAL jsonb_array_elements(rankings) AS r(value)
+ORDER BY email, rank;
+
+-- ============================================================
+-- Optional: Quick summary of most-selected items
+-- ============================================================
+CREATE OR REPLACE VIEW survey_item_counts AS
+SELECT
+  r.value->>'label' AS item,
+  COUNT(*) AS times_selected,
+  ROUND(AVG((r.value->>'rank')::numeric), 2) AS avg_rank
+FROM survey_responses,
+LATERAL jsonb_array_elements(rankings) AS r(value)
+GROUP BY r.value->>'label'
+ORDER BY times_selected DESC, avg_rank ASC;
+
+-- ============================================================
+-- Optional: Breakdown by team size
+-- ============================================================
+CREATE OR REPLACE VIEW survey_by_team_size AS
+SELECT
+  team_size,
+  r.value->>'label' AS item,
+  COUNT(*) AS times_selected,
+  ROUND(AVG((r.value->>'rank')::numeric), 2) AS avg_rank
+FROM survey_responses,
+LATERAL jsonb_array_elements(rankings) AS r(value)
+GROUP BY team_size, r.value->>'label'
+ORDER BY team_size, times_selected DESC, avg_rank ASC;
