@@ -74,3 +74,24 @@ FROM survey_responses,
 LATERAL jsonb_array_elements(rankings) AS r(value)
 GROUP BY team_size, r.value->>'label'
 ORDER BY team_size, times_selected DESC, avg_rank ASC;
+
+-- ============================================================
+-- Partial responses (progressive save)
+-- ============================================================
+CREATE TABLE survey_partials (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  session_id TEXT NOT NULL UNIQUE,
+  step TEXT NOT NULL,
+  selections JSONB,
+  rankings JSONB,
+  remaining_rankings JSONB,
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT,
+  team_size TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE survey_partials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service role can all" ON survey_partials FOR ALL USING (true) WITH CHECK (true);

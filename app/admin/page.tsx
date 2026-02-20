@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./admin.css";
 
 export default function AdminPage() {
@@ -13,6 +13,40 @@ export default function AdminPage() {
   const [confirmText, setConfirmText] = useState("");
   const [resetting, setResetting] = useState(false);
   const [success, setSuccess] = useState("");
+  const [seedCount, setSeedCount] = useState(10);
+  const [seeding, setSeeding] = useState(false);
+  const [partials, setPartials] = useState<Array<{
+    id: string;
+    session_id: string;
+    step: string;
+    selections: string[] | null;
+    rankings: Array<{ id: string; label: string; rank: number }> | null;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+    updated_at: string;
+  }>>([]);
+  const [partialsExpanded, setPartialsExpanded] = useState(false);
+
+  const fetchPartials = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/partials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPartials(data.partials || []);
+      }
+    } catch { /* ignore */ }
+  }, [password]);
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchPartials();
+    }
+  }, [authenticated, fetchPartials]);
 
   const handleLogin = async () => {
     setError("");
@@ -36,6 +70,29 @@ export default function AdminPage() {
     }
   };
 
+  const handleSeed = async () => {
+    setError("");
+    setSuccess("");
+    setSeeding(true);
+    try {
+      const res = await fetch("/api/admin/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, count: seedCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to seed responses");
+      } else {
+        setSuccess(`Successfully seeded ${data.count} survey responses.`);
+      }
+    } catch {
+      setError("Network error");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const handleReset = async () => {
     if (confirmText !== "RESET") return;
     setError("");
@@ -54,6 +111,7 @@ export default function AdminPage() {
         setSuccess("All survey results have been deleted.");
         setShowConfirm(false);
         setConfirmText("");
+        setPartials([]);
       }
     } catch {
       setError("Network error");
@@ -147,6 +205,76 @@ export default function AdminPage() {
 
         {success && <div className="a-success">{success}</div>}
         {error && <div className="a-error">{error}</div>}
+      </div>
+
+      <div className="a-card">
+        <h2>Seed Survey Responses</h2>
+        <p>Generate fake survey responses to preview the results dashboard.</p>
+        <div className="a-input-row">
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={seedCount}
+            onChange={(e) => setSeedCount(Math.max(1, Math.min(100, Number(e.target.value))))}
+          />
+          <button
+            className="a-seed-btn"
+            onClick={handleSeed}
+            disabled={seeding}
+          >
+            {seeding ? "Seeding..." : "Seed Responses"}
+          </button>
+        </div>
+      </div>
+
+      <div className="a-card">
+        <h2>Partial Responses</h2>
+        <p>
+          In-progress survey sessions saved at each step transition.
+          {partials.length > 0 && <strong> {partials.length} partial{partials.length !== 1 ? "s" : ""} found.</strong>}
+          {partials.length === 0 && " None currently."}
+        </p>
+
+        {partials.length > 0 && (
+          <>
+            <button
+              className="a-seed-btn"
+              style={{ marginBottom: 16 }}
+              onClick={() => setPartialsExpanded(!partialsExpanded)}
+            >
+              {partialsExpanded ? "Hide Details" : "Show Details"}
+            </button>
+
+            {partialsExpanded && (
+              <ul className="a-partials-list">
+                {partials.map((p) => (
+                  <li key={p.id} className="a-partial-item">
+                    <div className="a-partial-header">
+                      <span className="a-partial-step">Step: {p.step}</span>
+                      <span className="a-partial-time">
+                        {new Date(p.updated_at).toLocaleString()}
+                      </span>
+                    </div>
+                    {p.selections && (
+                      <div className="a-partial-detail">
+                        Selections: {Array.isArray(p.selections) ? p.selections.join(", ") : String(p.selections)}
+                      </div>
+                    )}
+                    {p.first_name && (
+                      <div className="a-partial-detail">
+                        Name: {p.first_name} {p.last_name || ""}
+                      </div>
+                    )}
+                    {p.email && (
+                      <div className="a-partial-detail">Email: {p.email}</div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

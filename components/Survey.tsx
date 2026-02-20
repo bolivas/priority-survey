@@ -54,10 +54,10 @@ const TEAM_SIZES = [
 
 const MAX_SELECTIONS = 5;
 
-type Step = "info" | "select" | "rank" | "submitted" | "already";
+type Step = "select" | "rank" | "info" | "submitted" | "already";
 
 export default function Survey() {
-  const [step, setStep] = useState<Step>("info");
+  const [step, setStep] = useState<Step>("select");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -70,6 +70,23 @@ export default function Survey() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const nextBtnRef = useRef<HTMLButtonElement>(null);
+  const sessionIdRef = useRef<string>(crypto.randomUUID());
+
+  const savePartial = (partialStep: string, data: Record<string, unknown>) => {
+    fetch("/api/partial", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionIdRef.current, step: partialStep, ...data }),
+    }).catch(() => {});
+  };
+
+  const deletePartial = () => {
+    fetch("/api/partial", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionIdRef.current }),
+    }).catch(() => {});
+  };
 
   // Scroll to Next button when all 5 are selected
   useEffect(() => {
@@ -84,8 +101,8 @@ export default function Survey() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // --- STEP 1: Info ---
-  const handleInfoNext = () => {
+  // --- STEP 3: Info (final step) ---
+  const handleInfoSubmit = () => {
     setError("");
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
       setError("Please enter your first name, last name, and email.");
@@ -101,7 +118,7 @@ export default function Survey() {
       return;
     }
     setError("");
-    setStep("select");
+    handleSubmit();
   };
 
   // --- STEP 2: Select top 5 ---
@@ -129,6 +146,7 @@ export default function Survey() {
     setMovedIds(new Set());
     setMovedRemainingIds(new Set());
     setError("");
+    savePartial("select", { selections: Array.from(selectedIds) });
     setStep("rank");
   };
 
@@ -196,10 +214,12 @@ export default function Survey() {
       const data = await res.json();
 
       if (res.status === 409) {
+        deletePartial();
         setStep("already");
       } else if (!res.ok) {
         setError(data.error || "Something went wrong. Please try again.");
       } else {
+        deletePartial();
         setStep("submitted");
       }
     } catch {
@@ -235,13 +255,70 @@ export default function Survey() {
     );
   }
 
-  // --- STEP 1: Name, email, team size ---
-  if (step === "info") {
+  // --- STEP 1: Pick top 5 ---
+  if (step === "select") {
     return (
       <div className="container">
         <div className="header">
           <h1>AI Employee Priority Survey</h1>
           <p>Help us understand which AI employees would be most valuable to you</p>
+        </div>
+        <div className="card">
+          <div className="instructions">
+            <strong>Select your top {MAX_SELECTIONS} priorities</strong>
+            Tap or click the items that matter most to you. You must choose exactly {MAX_SELECTIONS}.
+          </div>
+
+          <div className="selection-count">
+            {selectedIds.size}/{MAX_SELECTIONS} selected
+            {selectedIds.size === MAX_SELECTIONS ? " — All picked! ✓" : ""}
+          </div>
+
+          <ul className="select-list">
+            {SURVEY_OPTIONS.map((opt) => {
+              const isSelected = selectedIds.has(opt.id);
+              const isDisabled = !isSelected && selectedIds.size >= MAX_SELECTIONS;
+              return (
+                <li key={opt.id}>
+                  <button
+                    type="button"
+                    className={`select-item ${isSelected ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                    onClick={() => !isDisabled && toggleSelection(opt.id)}
+                  >
+                    <span className="select-check">{isSelected ? "✓" : ""}</span>
+                    <span className="select-label">
+                      {opt.label}
+                      <span className="select-desc">{opt.description}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="submit-area">
+            <button
+              ref={nextBtnRef}
+              className={`submit-btn ${selectedIds.size === MAX_SELECTIONS ? "pulse" : ""}`}
+              onClick={handleSelectNext}
+              disabled={selectedIds.size < MAX_SELECTIONS}
+            >
+              Next: Rank Them →
+            </button>
+          </div>
+          {error && <div className="error-msg">{error}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  // --- STEP 3: Contact info + submit ---
+  if (step === "info") {
+    return (
+      <div className="container">
+        <div className="header">
+          <h1>AI Employee Priority Survey</h1>
+          <p>Almost done — just a few details</p>
         </div>
         <div className="card">
           <div className="form-row">
@@ -294,73 +371,20 @@ export default function Survey() {
             </div>
           </div>
 
-          <div className="submit-area">
-            <button className="submit-btn" onClick={handleInfoNext}>
-              Next →
-            </button>
-          </div>
-          {error && <div className="error-msg">{error}</div>}
-        </div>
-      </div>
-    );
-  }
-
-  // --- STEP 2: Pick top 5 ---
-  if (step === "select") {
-    return (
-      <div className="container">
-        <div className="header">
-          <h1>AI Employee Priority Survey</h1>
-          <p>Step 1 of 2</p>
-        </div>
-        <div className="card">
-          <div className="instructions">
-            <strong>Select your top {MAX_SELECTIONS} priorities</strong>
-            Tap or click the items that matter most to you. You must choose exactly {MAX_SELECTIONS}.
-          </div>
-
-          <div className="selection-count">
-            {selectedIds.size}/{MAX_SELECTIONS} selected
-            {selectedIds.size === MAX_SELECTIONS ? " — All picked! ✓" : ""}
-          </div>
-
-          <ul className="select-list">
-            {SURVEY_OPTIONS.map((opt) => {
-              const isSelected = selectedIds.has(opt.id);
-              const isDisabled = !isSelected && selectedIds.size >= MAX_SELECTIONS;
-              return (
-                <li key={opt.id}>
-                  <button
-                    type="button"
-                    className={`select-item ${isSelected ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
-                    onClick={() => !isDisabled && toggleSelection(opt.id)}
-                  >
-                    <span className="select-check">{isSelected ? "✓" : ""}</span>
-                    <span className="select-label">
-                      {opt.label}
-                      <span className="select-desc">{opt.description}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-
           <div className="submit-area" style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <button
               className="submit-btn"
               style={{ background: "var(--gray-300)", color: "var(--gray-700)" }}
-              onClick={() => setStep("info")}
+              onClick={() => setStep("rank")}
             >
               ← Back
             </button>
             <button
-              ref={nextBtnRef}
-              className={`submit-btn ${selectedIds.size === MAX_SELECTIONS ? "pulse" : ""}`}
-              onClick={handleSelectNext}
-              disabled={selectedIds.size < MAX_SELECTIONS}
+              className="submit-btn"
+              onClick={handleInfoSubmit}
+              disabled={submitting}
             >
-              Next: Rank Them →
+              {submitting ? "Submitting..." : "Submit My Rankings"}
             </button>
           </div>
           {error && <div className="error-msg">{error}</div>}
@@ -369,12 +393,12 @@ export default function Survey() {
     );
   }
 
-  // --- STEP 3: Rank the 5 ---
+  // --- STEP 2: Rank the 5 ---
   return (
     <div className="container">
       <div className="header">
         <h1>AI Employee Priority Survey</h1>
-        <p>Step 2 of 2</p>
+        <p>Step 2 of 3</p>
       </div>
 
       {/* Top 5 — required */}
@@ -464,10 +488,17 @@ export default function Survey() {
           </button>
           <button
             className="submit-btn"
-            onClick={handleSubmit}
-            disabled={submitting}
+            onClick={() => {
+              setError("");
+              savePartial("rank", {
+                selections: Array.from(selectedIds),
+                rankings: rankedItems.map((item, index) => ({ id: item.id, label: item.label, rank: index + 1 })),
+                remaining_rankings: remainingItems.map((item, index) => ({ id: item.id, label: item.label, rank: index + 1 + MAX_SELECTIONS })),
+              });
+              setStep("info");
+            }}
           >
-            {submitting ? "Submitting..." : "Submit My Rankings"}
+            Next →
           </button>
         </div>
         {error && <div className="error-msg">{error}</div>}
