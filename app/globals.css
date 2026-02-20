@@ -56,7 +56,7 @@ body {
 }
 
 .header p {
-  color: var(--gray-500);
+  color: var(--gray-900);
   font-size: 0.95rem;
 }
 
@@ -84,7 +84,7 @@ body {
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--gray-900);
   margin-bottom: 6px;
 }
 
@@ -128,7 +128,7 @@ body {
   gap: 20px;
   margin-bottom: 16px;
   font-size: 0.8rem;
-  color: var(--gray-500);
+  color: var(--gray-900);
 }
 
 .legend-item {
@@ -230,13 +230,13 @@ body {
   display: block;
   font-size: 0.78rem;
   font-weight: 400;
-  color: #6b7280;
+  color: var(--gray-900);
   margin-top: 3px;
   line-height: 1.4;
 }
 
 .item-handle {
-  color: var(--gray-400);
+  color: var(--gray-900);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -315,7 +315,7 @@ body {
 .progress-note {
   margin-top: 10px;
   font-size: 0.8rem;
-  color: var(--gray-400);
+  color: var(--gray-900);
 }
 
 /* Success */
@@ -343,7 +343,7 @@ body {
 }
 
 .success-card p {
-  color: var(--gray-500);
+  color: var(--gray-900);
 }
 
 /* Already submitted */
@@ -359,7 +359,7 @@ body {
 }
 
 .already-card p {
-  color: var(--gray-500);
+  color: var(--gray-900);
 }
 
 /* Error */
@@ -388,7 +388,7 @@ body {
   background: white;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--gray-700);
+  color: var(--gray-900);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -413,7 +413,7 @@ body {
 .selection-count {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--gray-500);
+  color: var(--gray-900);
   margin-bottom: 14px;
 }
 
@@ -438,7 +438,7 @@ body {
   transition: all 0.15s;
   text-align: left;
   font-size: 0.9rem;
-  color: var(--gray-700);
+  color: var(--gray-900);
 }
 
 .select-item:hover:not(.disabled) {
@@ -486,13 +486,13 @@ body {
   display: block;
   font-size: 0.78rem;
   font-weight: 400;
-  color: #6b7280;
+  color: var(--gray-900);
   margin-top: 4px;
   line-height: 1.4;
 }
 
 .select-item.selected .select-desc {
-  color: #4b6cb7;
+  color: var(--gray-900);
 }
 
 /* Responsive */

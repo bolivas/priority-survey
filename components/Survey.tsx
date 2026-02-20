@@ -261,12 +261,12 @@ export default function Survey() {
       <div className="container">
         <div className="header">
           <h1>AI Employee Priority Survey</h1>
-          <p>Help us understand which AI employees would be most valuable to you</p>
+          <p>Below are real problems that agents and team members face every day. Pick the {MAX_SELECTIONS} you would most want an AI employee to fix, improve, or handle better than how it gets done today.</p>
         </div>
         <div className="card">
           <div className="instructions">
-            <strong>Select your top {MAX_SELECTIONS} priorities</strong>
-            Tap or click the items that matter most to you. You must choose exactly {MAX_SELECTIONS}.
+            <strong>Select your top {MAX_SELECTIONS} problems</strong>
+            Which of these issues would make the biggest difference if an AI employee could solve them for you? Choose exactly {MAX_SELECTIONS}.
           </div>
 
           <div className="selection-count">
@@ -449,7 +449,7 @@ export default function Survey() {
 
       {/* Remaining — optional */}
       <div className="card remaining-card">
-        <div className="instructions" style={{ background: "#f9fafb", borderColor: "var(--gray-200)", color: "var(--gray-600)" }}>
+        <div className="instructions" style={{ background: "#f9fafb", borderColor: "var(--gray-200)", color: "var(--gray-900)" }}>
           <strong>Remaining options (optional)</strong>
           If you&apos;d like, you can also rank the remaining options below. This is optional — feel free to skip.
         </div>
