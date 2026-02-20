@@ -5,7 +5,7 @@ const SURVEY_ITEMS = [
   { id: "lead-gen", label: "Lead Generation & Quality" },
   { id: "prospect-outreach", label: "Prospect Outreach & Contact" },
   { id: "follow-up-nurture", label: "Follow-Up, Nurture & Appointment Setting" },
-  { id: "client-onboarding", label: "Client Onboarding" },
+  { id: "client-onboarding", label: "Quoting, Fact-Finding & Client Onboarding" },
   { id: "book-retention", label: "Book of Business & Client Retention" },
   { id: "claims-engagement", label: "Claims Engagement" },
   { id: "agent-recruiting", label: "Agent Recruiting & Hiring" },
