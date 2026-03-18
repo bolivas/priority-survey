@@ -5,22 +5,18 @@ const SURVEY_ITEMS = [
   { id: "lead-gen", label: "Lead Generation & Quality" },
   { id: "prospect-outreach", label: "Prospect Outreach & Contact" },
   { id: "follow-up-nurture", label: "Follow-Up, Nurture & Appointment Setting" },
-  { id: "client-onboarding", label: "Quoting, Fact-Finding & Client Onboarding" },
-  { id: "book-retention", label: "Book of Business & Client Retention" },
-  { id: "claims-engagement", label: "Claims Engagement" },
-  { id: "agent-recruiting", label: "Agent Recruiting & Hiring" },
-  { id: "licensing-exam", label: "Agent Licensing & Exam Prep" },
-  { id: "agent-onboarding", label: "Agent Onboarding & Contracting" },
-  { id: "agent-ramp-up", label: "New Agent Ramp-Up & Field Readiness" },
+  { id: "client-onboarding", label: "Quoting, Proposals & Client Onboarding" },
+  { id: "book-retention", label: "Client Retention & Account Management" },
+  { id: "recruiting", label: "Recruiting & Hiring" },
+  { id: "new-hire-ramp-up", label: "New Hire Ramp-Up & Readiness" },
   { id: "sales-training", label: "Sales Training & Skill Development" },
-  { id: "accountability", label: "Agent Accountability & Performance Management" },
-  { id: "agent-retention", label: "Agent Retention & Culture" },
-  { id: "underwriting", label: "Underwriting & Carrier Relations" },
+  { id: "accountability", label: "Team Accountability & Performance Management" },
+  { id: "employee-retention", label: "Employee Retention & Culture" },
   { id: "compliance", label: "Compliance & Regulatory" },
   { id: "doc-generation", label: "Document Generation & Automation" },
   { id: "marketing", label: "Marketing & Branding" },
   { id: "self-service", label: "Customer-Facing Self-Service" },
-  { id: "knowledge-base", label: "Agency Knowledge Base & Internal Efficiency" },
+  { id: "knowledge-base", label: "Company Knowledge Base & Internal Efficiency" },
   { id: "data-bi", label: "Data & Business Intelligence" },
   { id: "biz-ops-finance", label: "Business Operations & Finance" },
   { id: "cash-flow", label: "Cash Flow Management" },
@@ -58,7 +54,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function generateResponse(index: number, surveyVersion: number = 2) {
+function generateResponse(index: number, surveyVersion: number = 3) {
   const firstName = pick(FIRST_NAMES);
   const lastName = pick(LAST_NAMES);
   const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${index}@example.com`;
@@ -82,7 +78,7 @@ function generateResponse(index: number, surveyVersion: number = 2) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { password, count = 10, survey_version = 2 } = await request.json();
+    const { password, count = 10, survey_version = 3 } = await request.json();
 
     if (password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
