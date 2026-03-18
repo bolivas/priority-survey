@@ -63,7 +63,7 @@ export default function ResultsPage() {
   const [tab, setTab] = useState<Tab>("summary");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teamFilter, setTeamFilter] = useState<"all" | "1-2" | "3-20" | "20+">("all");
-  const [surveyVersion, setSurveyVersion] = useState<number>(2);
+  const [surveyVersion, setSurveyVersion] = useState<number>(3);
 
   const fetchResults = async (pw: string, version?: number) => {
     const res = await fetch("/api/results", {
@@ -206,6 +206,13 @@ export default function ResultsPage() {
           disabled={loading}
         >
           Round 2
+        </button>
+        <button
+          className={`r-sort-btn ${surveyVersion === 3 ? "active" : ""}`}
+          onClick={() => handleVersionChange(3)}
+          disabled={loading}
+        >
+          Round 3
         </button>
       </div>
 
