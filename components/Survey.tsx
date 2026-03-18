@@ -22,6 +22,8 @@ import SortableItem from "./SortableItem";
 // ============================================================
 // CONFIGURE YOUR SURVEY OPTIONS HERE
 // ============================================================
+const SURVEY_VERSION = 2;
+
 const SURVEY_OPTIONS = [
   { id: "lead-gen", label: "Lead Generation & Quality", description: "Agents waste time chasing unqualified leads from vendors that prioritize volume over quality, and the AI tools that do exist are built for American markets only, leaving international agents with nothing usable." },
   { id: "prospect-outreach", label: "Prospect Outreach & Contact", description: "Getting a prospect on the phone is a grind of unanswered calls, siloed communication channels, no intelligent call routing, and outreach that doesn\u2019t adapt to regional culture or tone." },
@@ -44,6 +46,9 @@ const SURVEY_OPTIONS = [
   { id: "knowledge-base", label: "Agency Knowledge Base & Internal Efficiency", description: "There\u2019s no shared, multi-user knowledge base for agency teams, so managers and senior agents burn hours answering the same internal questions over and over instead of focusing on growth." },
   { id: "data-bi", label: "Data & Business Intelligence", description: "Most agents and owners don\u2019t track close ratios, dial-to-appointment rates, marketing ROI, or margins \u2014 they\u2019re flying blind and staying average because no simple dashboard ties activity to outcomes." },
   { id: "biz-ops-finance", label: "Business Operations & Finance", description: "Receipt tracking, commissions reconciliation, and bank account management are manual and error-prone, requiring dedicated headcount that smaller agencies can\u2019t afford and larger ones are still struggling to staff." },
+  { id: "cash-flow", label: "Cash Flow Management", description: "Managing expenses, payroll, and reinvestment decisions with inconsistent revenue cycles \u2014 agency owners struggle to balance day-to-day cash needs against the investments required for growth." },
+  { id: "wearing-many-hats", label: "Wearing Too Many Hats", description: "Agency owners are forced to juggle leadership, operations, sales, HR, finances, and more \u2014 spreading themselves too thin across every function because they can\u2019t afford or find the right people to delegate to." },
+  { id: "workplace-culture", label: "Managing Workplace Culture & Climate", description: "Keeping your workforce progressing and happy requires constant attention to HR fundamentals \u2014 performance reviews, conflict resolution, career pathing, benefits, and morale \u2014 that most agency owners were never trained for." },
 ];
 
 const TEAM_SIZES = [
@@ -76,7 +81,7 @@ export default function Survey() {
     fetch("/api/partial", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionIdRef.current, step: partialStep, ...data }),
+      body: JSON.stringify({ session_id: sessionIdRef.current, step: partialStep, survey_version: SURVEY_VERSION, ...data }),
     }).catch(() => {});
   };
 
@@ -198,6 +203,7 @@ export default function Survey() {
           last_name: lastName.trim(),
           email: email.trim().toLowerCase(),
           team_size: teamSize,
+          survey_version: SURVEY_VERSION,
           rankings: rankedItems.map((item, index) => ({
             id: item.id,
             label: item.label,

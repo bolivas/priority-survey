@@ -44,6 +44,9 @@ const ITEM_DESCRIPTIONS: Record<string, string> = {
   "knowledge-base": "There\u2019s no shared, multi-user knowledge base for agency teams, so managers and senior agents burn hours answering the same internal questions over and over instead of focusing on growth.",
   "data-bi": "Most agents and owners don\u2019t track close ratios, dial-to-appointment rates, marketing ROI, or margins \u2014 they\u2019re flying blind and staying average because no simple dashboard ties activity to outcomes.",
   "biz-ops-finance": "Receipt tracking, commissions reconciliation, and bank account management are manual and error-prone, requiring dedicated headcount that smaller agencies can\u2019t afford and larger ones are still struggling to staff.",
+  "cash-flow": "Managing expenses, payroll, and reinvestment decisions with inconsistent revenue cycles \u2014 agency owners struggle to balance day-to-day cash needs against the investments required for growth.",
+  "wearing-many-hats": "Agency owners are forced to juggle leadership, operations, sales, HR, finances, and more \u2014 spreading themselves too thin across every function because they can\u2019t afford or find the right people to delegate to.",
+  "workplace-culture": "Keeping your workforce progressing and happy requires constant attention to HR fundamentals \u2014 performance reviews, conflict resolution, career pathing, benefits, and morale \u2014 that most agency owners were never trained for.",
 };
 
 export default function ResultsPage() {
@@ -55,25 +58,41 @@ export default function ResultsPage() {
   const [tab, setTab] = useState<Tab>("summary");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teamFilter, setTeamFilter] = useState<"all" | "1-2" | "3-20" | "20+">("all");
+  const [surveyVersion, setSurveyVersion] = useState<number>(2);
+
+  const fetchResults = async (pw: string, version?: number) => {
+    const res = await fetch("/api/results", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: pw, survey_version: version }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to fetch");
+    return data.results as Response[];
+  };
 
   const handleLogin = async () => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to authenticate");
-      } else {
-        setResults(data.results);
-        setAuthenticated(true);
-      }
+      const data = await fetchResults(password, surveyVersion);
+      setResults(data);
+      setAuthenticated(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVersionChange = async (version: number) => {
+    setSurveyVersion(version);
+    setLoading(true);
+    try {
+      const data = await fetchResults(password, version);
+      setResults(data);
     } catch {
-      setError("Network error");
+      setError("Failed to load results");
     } finally {
       setLoading(false);
     }
@@ -165,6 +184,24 @@ export default function ResultsPage() {
       <div className="r-header">
         <h1>Survey Results</h1>
         <span className="r-badge">{totalResponses} response{totalResponses !== 1 ? "s" : ""}</span>
+      </div>
+
+      <div className="r-sort-toggle" style={{ marginBottom: 16 }}>
+        <span className="r-sort-label">Survey round:</span>
+        <button
+          className={`r-sort-btn ${surveyVersion === 1 ? "active" : ""}`}
+          onClick={() => handleVersionChange(1)}
+          disabled={loading}
+        >
+          Round 1
+        </button>
+        <button
+          className={`r-sort-btn ${surveyVersion === 2 ? "active" : ""}`}
+          onClick={() => handleVersionChange(2)}
+          disabled={loading}
+        >
+          Round 2
+        </button>
       </div>
 
       <div className="r-tabs">

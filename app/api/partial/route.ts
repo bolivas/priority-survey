@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { session_id, step, selections, rankings, remaining_rankings, first_name, last_name, email, team_size } = body;
+    const { session_id, step, selections, rankings, remaining_rankings, first_name, last_name, email, team_size, survey_version } = body;
 
     if (!session_id || !step) {
       return NextResponse.json(
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
           last_name: last_name ?? null,
           email: email ?? null,
           team_size: team_size ?? null,
+          survey_version: survey_version ?? 1,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "session_id" }

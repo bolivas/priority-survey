@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
-    const { password } = await request.json();
+    const { password, survey_version } = await request.json();
 
     if (password !== process.env.RESULTS_PASSWORD) {
       return NextResponse.json(
@@ -12,10 +12,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("survey_responses")
       .select("*")
       .order("submitted_at", { ascending: false });
+
+    if (survey_version) {
+      query = query.eq("survey_version", survey_version);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Supabase fetch error:", error);

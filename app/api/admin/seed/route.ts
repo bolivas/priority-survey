@@ -23,6 +23,9 @@ const SURVEY_ITEMS = [
   { id: "knowledge-base", label: "Agency Knowledge Base & Internal Efficiency" },
   { id: "data-bi", label: "Data & Business Intelligence" },
   { id: "biz-ops-finance", label: "Business Operations & Finance" },
+  { id: "cash-flow", label: "Cash Flow Management" },
+  { id: "wearing-many-hats", label: "Wearing Too Many Hats" },
+  { id: "workplace-culture", label: "Managing Workplace Culture & Climate" },
 ];
 
 const FIRST_NAMES = [
@@ -55,7 +58,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function generateResponse(index: number) {
+function generateResponse(index: number, surveyVersion: number = 2) {
   const firstName = pick(FIRST_NAMES);
   const lastName = pick(LAST_NAMES);
   const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${index}@example.com`;
@@ -70,6 +73,7 @@ function generateResponse(index: number) {
     last_name: lastName,
     email,
     team_size: teamSize,
+    survey_version: surveyVersion,
     rankings: top5.map((item, i) => ({ id: item.id, label: item.label, rank: i + 1 })),
     remaining_rankings: rest.map((item, i) => ({ id: item.id, label: item.label, rank: i + 6 })),
     submitted_at: new Date().toISOString(),
@@ -78,13 +82,13 @@ function generateResponse(index: number) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { password, count = 10 } = await request.json();
+    const { password, count = 10, survey_version = 2 } = await request.json();
 
     if (password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rows = Array.from({ length: count }, (_, i) => generateResponse(i));
+    const rows = Array.from({ length: count }, (_, i) => generateResponse(i, survey_version));
 
     const { error } = await supabase.from("survey_responses").insert(rows);
 

@@ -4,20 +4,21 @@ import { supabase } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { first_name, last_name, email, team_size, rankings, remaining_rankings } = body;
+    const { first_name, last_name, email, team_size, rankings, remaining_rankings, survey_version } = body;
 
-    if (!first_name || !last_name || !email || !team_size || !rankings) {
+    if (!first_name || !last_name || !email || !team_size || !rankings || !survey_version) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Check if email already submitted
+    // Check if email already submitted for this survey version
     const { data: existing } = await supabase
       .from("survey_responses")
       .select("id")
       .eq("email", email.toLowerCase())
+      .eq("survey_version", survey_version)
       .limit(1);
 
     if (existing && existing.length > 0) {
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       last_name,
       email: email.toLowerCase(),
       team_size,
+      survey_version,
       rankings,
       remaining_rankings: remaining_rankings || [],
       submitted_at: new Date().toISOString(),
